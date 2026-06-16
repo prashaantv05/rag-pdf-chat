@@ -1,6 +1,6 @@
 # PDF RAG Chatbot with Gemini & FAISS
 
-A professional, local Retrieval-Augmented Generation (RAG) chatbot that allows you to upload, index, and have interactive chats with any PDF document. It leverages Google Gemini embeddings and LLMs via LangChain, utilizing a local FAISS vector store for fast semantic search.
+A local Retrieval-Augmented Generation (RAG) chatbot that allows you to upload, index, and have interactive chats with any PDF document. It leverages Google Gemini embeddings and LLMs via LangChain, utilizing a local FAISS vector store for fast semantic search.
 
 ---
 
