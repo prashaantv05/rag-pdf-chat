@@ -53,9 +53,6 @@ else:
     chunks = splitter.split_documents(docs)
     print(f"Total chunks created: {len(chunks)}")
     print("-" * 50)
-    print("Preview of the first chunk:")
-    print(chunks[0].page_content[:300] + "...")
-    print("-" * 50)
     
     # Step 3: Generate embeddings in batches with rate-limit retries
     batch_size = 20  # Stay safely under rate limits
