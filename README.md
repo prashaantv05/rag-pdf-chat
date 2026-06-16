@@ -82,12 +82,15 @@ graph TD
 
 ## 🏃 Usage
 
-1.  Place the PDF you want to query inside the project directory.
-2.  Open [main.py](file:///d:/Prashaant/WebDevProjects/rag-pdf-chat/main.py) and update the `PDF_FILE_PATH` config variable at the top:
+Two sample PDF documents are already included in the root directory for quick out-of-the-box testing:
+*   `sample.pdf`: A small 50-page test PDF document (~117 chunks).
+*   `sample2.pdf`: A larger PDF document (~222 chunks).
+
+1.  Open [main.py](file:///d:/Prashaant/WebDevProjects/rag-pdf-chat/main.py) and update the `PDF_FILE_PATH` config variable at the top to either sample (or place your own PDF in the root directory and name it here):
     ```python
-    PDF_FILE_PATH = "your_document.pdf"
+    PDF_FILE_PATH = "sample.pdf"  # or "sample2.pdf", or your own file
     ```
-3.  Run the application:
+2.  Run the application:
     ```bash
     python main.py
     ```

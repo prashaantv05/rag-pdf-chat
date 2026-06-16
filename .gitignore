@@ -16,8 +16,10 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Large PDF files
+# Large PDF files (ignore all except the sample files)
 *.pdf
+!sample.pdf
+!sample2.pdf
 
 # IDE configurations
 .vscode/
