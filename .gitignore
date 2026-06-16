@@ -1,0 +1,24 @@
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Environment variables (CRITICAL: prevents pushing your API key!)
+.env
+
+# Vector database caches
+faiss_cache/
+faiss_index/
+
+# Python compilation files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Large PDF files
+*.pdf
+
+# IDE configurations
+.vscode/
+.idea/
