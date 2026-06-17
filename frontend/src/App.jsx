@@ -165,18 +165,90 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(false);
 
   // Chat/Session states
-  const [messages, setMessages] = useState([]);
-  const [sessions, setSessions] = useState([]);
-  const [currentSessionId, setCurrentSessionId] = useState(null);
+  const [sessions, setSessions] = useState(() => {
+    const savedUser = localStorage.getItem('docmind_user');
+    if (savedUser) {
+      const userObj = JSON.parse(savedUser);
+      const key = `rag_chat_sessions_${userObj.username}`;
+      const savedSessions = localStorage.getItem(key);
+      return savedSessions ? JSON.parse(savedSessions) : [];
+    }
+    return [];
+  });
+
+  const [currentSessionId, setCurrentSessionId] = useState(() => {
+    const savedUser = localStorage.getItem('docmind_user');
+    if (savedUser) {
+      const userObj = JSON.parse(savedUser);
+      return localStorage.getItem(`rag_active_session_id_${userObj.username}`) || null;
+    }
+    return null;
+  });
+
+  const [activePdf, setActivePdf] = useState(() => {
+    const savedUser = localStorage.getItem('docmind_user');
+    if (savedUser) {
+      const userObj = JSON.parse(savedUser);
+      const activeId = localStorage.getItem(`rag_active_session_id_${userObj.username}`);
+      const key = `rag_chat_sessions_${userObj.username}`;
+      const savedSessions = localStorage.getItem(key);
+      if (activeId && savedSessions) {
+        const parsedSessions = JSON.parse(savedSessions);
+        const activeSession = parsedSessions.find(s => s.id === activeId);
+        if (activeSession && activeSession.pdfName && activeSession.pdfFilename) {
+          return { name: activeSession.pdfName, filename: activeSession.pdfFilename };
+        }
+      }
+    }
+    return null;
+  });
+
+  const [messages, setMessages] = useState(() => {
+    const savedUser = localStorage.getItem('docmind_user');
+    if (savedUser) {
+      const userObj = JSON.parse(savedUser);
+      const activeId = localStorage.getItem(`rag_active_session_id_${userObj.username}`);
+      const key = `rag_chat_sessions_${userObj.username}`;
+      const savedSessions = localStorage.getItem(key);
+      if (activeId && savedSessions) {
+        const parsedSessions = JSON.parse(savedSessions);
+        const activeSession = parsedSessions.find(s => s.id === activeId);
+        if (activeSession) {
+          return activeSession.messages || [];
+        }
+      }
+    }
+    return [];
+  });
+
   const [copiedMessageIndex, setCopiedMessageIndex] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // Load user sessions when user toggles
+  // Load user sessions and active state when user changes
   useEffect(() => {
     if (user) {
-      const key = `rag_chat_sessions_${user.username}`;
-      const saved = localStorage.getItem(key);
-      setSessions(saved ? JSON.parse(saved) : []);
+      const sessionsKey = `rag_chat_sessions_${user.username}`;
+      const activeKey = `rag_active_session_id_${user.username}`;
+      
+      const savedSessions = localStorage.getItem(sessionsKey);
+      const parsedSessions = savedSessions ? JSON.parse(savedSessions) : [];
+      setSessions(parsedSessions);
+      
+      const savedActiveId = localStorage.getItem(activeKey) || null;
+      setCurrentSessionId(savedActiveId);
+      
+      if (savedActiveId && parsedSessions.length > 0) {
+        const activeSession = parsedSessions.find(s => s.id === savedActiveId);
+        if (activeSession) {
+          setActivePdf(
+            activeSession.pdfName && activeSession.pdfFilename
+              ? { name: activeSession.pdfName, filename: activeSession.pdfFilename }
+              : null
+          );
+          setMessages(activeSession.messages || []);
+          return;
+        }
+      }
     } else {
       setSessions([]);
     }
@@ -193,10 +265,19 @@ export default function App() {
     }
   }, [sessions, user]);
 
+  // Sync active session ID to localStorage
+  useEffect(() => {
+    if (user) {
+      const key = `rag_active_session_id_${user.username}`;
+      if (currentSessionId) {
+        localStorage.setItem(key, currentSessionId);
+      } else {
+        localStorage.removeItem(key);
+      }
+    }
+  }, [currentSessionId, user]);
+
   const [input, setInput] = useState('');
-  
-  // PDF state
-  const [activePdf, setActivePdf] = useState(null); // { name, filename }
   const [isUploading, setIsUploading] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
   
