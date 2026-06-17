@@ -1,0 +1,221 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-gold-50: #fefcf3;
+  --color-gold-100: #fbf6df;
+  --color-gold-200: #f5e8b7;
+  --color-gold-300: #edd284;
+  --color-gold-400: #e3b652;
+  --color-gold-500: #d4af37; /* Premium Gold */
+  --color-gold-600: #b98e2a;
+  --color-gold-700: #996e22;
+  --color-gold-800: #7d5920;
+  --color-gold-900: #67481d;
+  --color-gold-950: #3c270d;
+  
+  --color-obsidian-50: #f9f9fa;
+  --color-obsidian-100: #f1f1f3;
+  --color-obsidian-200: #e1e1e6;
+  --color-obsidian-300: #cfcfd6;
+  --color-obsidian-400: #9f9fa8;
+  --color-obsidian-500: #6f6f79;
+  --color-obsidian-600: #4f4f58;
+  --color-obsidian-700: #313137;
+  --color-obsidian-800: #1b1b1f;
+  --color-obsidian-900: #0c0c0e;
+  --color-obsidian-950: #040406;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.15);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 175, 55, 0.45);
+}
+
+/* Premium Metallic Gold Gradient Text */
+.text-gold-gradient {
+  background: linear-gradient(135deg, #fce0ad 0%, #d4af37 45%, #b98e2a 70%, #8c6317 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Gold Glow Cards */
+.gold-glow {
+  box-shadow: 0 0 25px rgba(212, 175, 55, 0.08);
+}
+.gold-glow-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.gold-glow-hover:hover {
+  box-shadow: 0 0 35px rgba(212, 175, 55, 0.18);
+  border-color: rgba(212, 175, 55, 0.35);
+  transform: translateY(-2px);
+}
+
+/* Shimmer Loading Animation */
+.shimmer-bg {
+  background: linear-gradient(
+    90deg,
+    rgba(212, 175, 55, 0.03) 25%,
+    rgba(212, 175, 55, 0.12) 50%,
+    rgba(212, 175, 55, 0.03) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite linear;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Premium Gold Loading Spinner */
+.gold-spinner {
+  border: 2px solid rgba(212, 175, 55, 0.1);
+  border-top: 2px solid #d4af37;
+  border-radius: 50%;
+  width: 1.5rem;
+  height: 1.5rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Obsidian Glassmorphism Panels */
+.glass-panel {
+  backdrop-filter: blur(16px);
+  background: rgba(6, 6, 8, 0.85);
+  border: 1px solid rgba(212, 175, 55, 0.08);
+}
+.glass-panel-light {
+  backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+/* Custom Markdown Rendering Styles (Obsidian / Gold Unified) */
+.markdown-content p {
+  margin-bottom: 0.75rem;
+  line-height: 1.625;
+}
+.markdown-content p:last-child {
+  margin-bottom: 0;
+}
+.markdown-content ul, .markdown-content ol {
+  margin-top: 0.25rem;
+  margin-bottom: 0.75rem;
+  padding-left: 1.5rem;
+}
+.markdown-content ul {
+  list-style-type: disc;
+}
+.markdown-content ol {
+  list-style-type: decimal;
+}
+.markdown-content li {
+  margin-bottom: 0.35rem;
+}
+.markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4 {
+  font-weight: 750;
+  margin-top: 1.5rem;
+  margin-bottom: 0.6rem;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #fce0ad 0%, #d4af37 50%, #aa7c11 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.markdown-content h1 { font-size: 1.45rem; }
+.markdown-content h2 { font-size: 1.25rem; }
+.markdown-content h3 { font-size: 1.1rem; }
+.markdown-content code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.875em;
+  background-color: rgba(212, 175, 55, 0.08);
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  color: #c99e2e;
+}
+.dark .markdown-content code {
+  background-color: rgba(212, 175, 55, 0.05);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  color: #edd284;
+}
+.markdown-content pre {
+  background-color: #0c0c0e;
+  padding: 1rem;
+  border-radius: 0.625rem;
+  overflow-x: auto;
+  margin-top: 0.6rem;
+  margin-bottom: 0.8rem;
+  border: 1px solid rgba(212, 175, 55, 0.15);
+}
+.dark .markdown-content pre {
+  background-color: #040406;
+  border: 1px solid rgba(212, 175, 55, 0.08);
+}
+.markdown-content pre code {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  border: none;
+  color: inherit;
+}
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.6rem;
+  margin-bottom: 1.2rem;
+  font-size: 0.875em;
+}
+.markdown-content th, .markdown-content td {
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  padding: 0.6rem 0.85rem;
+  text-align: left;
+}
+.dark .markdown-content th, .dark .markdown-content td {
+  border: 1px solid rgba(212, 175, 55, 0.08);
+}
+.markdown-content th {
+  background-color: #121215;
+  font-weight: 600;
+  color: #edd284;
+}
+.dark .markdown-content th {
+  background-color: #060608;
+}
+.markdown-content blockquote {
+  border-left: 3px solid #d4af37;
+  padding-left: 1.1rem;
+  font-style: italic;
+  color: #7f7f89;
+  margin-bottom: 0.8rem;
+}
+.dark .markdown-content blockquote {
+  border-left: 3px solid #b98e2a;
+  color: #a1a1aa;
+}

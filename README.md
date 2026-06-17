@@ -1,39 +1,52 @@
-# PDF RAG Chatbot with Gemini & FAISS
+# DocMind AI - Grounded Document Intelligence
 
-A local Retrieval-Augmented Generation (RAG) chatbot that allows you to upload, index, and have interactive chats with any PDF document. It leverages Google Gemini embeddings and LLMs via LangChain, utilizing a local FAISS vector store for fast semantic search.
+DocMind AI is a professional, responsive Retrieval-Augmented Generation (RAG) chatbot web application that allows multiple users to upload, index, and have secure, private interactive chats with PDF documents. 
+
+Featuring a premium **Obsidian Gold** glassmorphic aesthetic, the application leverages Google Gemini embeddings and LLMs via LangChain, utilizing local FAISS vector stores namespaced per user for private, fast semantic search.
 
 ---
 
 ## 🚀 Key Features
 
-*   **Dynamic Document Caching**: Automatically calculates a hash/name-based index for each PDF. If a PDF has already been processed, it loads the vector store instantly from disk (`faiss_cache/`) without repeating costly API calls or document parsing.
+*   **Secure User Authentication**: Full Login and Registration interface backed by an SQLite database (`users.db`) using secure password hashing (PBKDF2 with SHA-256 and salt).
+*   **Isolated User Contexts**: Strict namespacing of PDF uploads and FAISS embedding stores by username (`backend/uploads/{username}/` and `backend/faiss_cache/{username}/`), ensuring data privacy across user accounts.
+*   **ChatGPT-style Chat Sessions**: Client-side session persistence via `localStorage` allowing users to manage multiple, isolated chat histories. Users can create, switch between, and delete past conversations at will.
+*   **Contextual Query Rewriting**: Utilizes the Gemini LLM to rewrite context-dependent follow-up queries (e.g., *"give me a 20 mark answer for the same above"*) into standalone, search-optimized vector database queries based on conversation history.
+*   **Premium Obsidian Gold UI**: Responsive and modern user interface featuring:
+    *   Glassmorphic layouts, animated gold gradients, and micro-interactions.
+    *   Manual class-based Light/Dark Mode toggle.
+    *   Fully responsive sidebar with a mobile drawer slide-out menu.
+    *   "Copy to Clipboard" utility icons on AI responses.
+    *   Intuitive empty-state guide cards and drag-and-drop file upload zones.
 *   **API Rate Limit Protection**: Built-in exponential backoff and retry logic handles Gemini's free-tier rate limits (`RESOURCE_EXHAUSTED` / `429`) automatically, making it safe to index large documents.
 *   **Semantic Text Chunking**: Pre-configured with an optimized chunk size of 1000 characters and a 200-character overlap to preserve sentences, context, and structural meaning.
-*   **Interactive Conversational CLI**: A clean, loop-based command-line interface that retrieves context and generates highly accurate answers from your document in real-time.
-*   **Strict Context Boundary**: The LLM is restricted to answering *only* using the text retrieved from your PDF. If the answer isn't in the document, it will gracefully inform you.
+*   **Strict Context Boundary**: The LLM is restricted to answering *only* using the text retrieved from your PDF. If the answer isn't in the document, it will gracefully inform the user.
+*   **Interactive Conversational CLI**: A clean, loop-based command-line interface is also provided in `main.py` for terminal-based chats.
 
 ---
 
 ## 🛠️ Architecture & Workflow
 
-The chatbot operates on the following RAG lifecycle:
+The system operates on the following RAG lifecycle:
 
 ```mermaid
 graph TD
-    A[Input PDF] --> B[PyPDFLoader]
-    B --> C[RecursiveCharacterTextSplitter]
-    C --> D{Is Cache Available?}
-    D -- Yes --> E[Load local FAISS Index]
-    D -- No --> F[Generate Gemini Embeddings in Batches]
-    F --> G[Build FAISS Vector Index]
-    G --> H[Save FAISS Index to Disk]
-    H --> E
-    E --> I[Interactive Chat Loop]
-    I --> J[Retrieve Top 8 Relevant Chunks]
-    J --> K[Format Context Prompt]
-    K --> L[Invoke Gemini 2.5 Flash LLM]
-    L --> M[Output Answer to User]
-    M --> I
+    A[Login / Register] --> B[Isolated Dashboard]
+    B --> C[Upload PDF]
+    C --> D[PyPDFLoader & Text Splitter]
+    D --> E{FAISS Cache Available?}
+    E -- Yes --> F[Load local User Vector Store]
+    E -- No --> G[Generate Gemini Embeddings in Batches]
+    G --> H[Build User FAISS Vector Index]
+    H --> I[Save FAISS Index to Disk]
+    I --> F
+    F --> J[Interactive Chat Input]
+    J --> K[LLM Standalone Query Rewriter]
+    K --> L[Retrieve Top 8 Chunks from User Index]
+    L --> M[Format Context & History Prompt]
+    M --> N[Invoke Gemini 2.5 Flash LLM]
+    N --> O[Render Markdown Answer & Sync History]
+    O --> J
 ```
 
 ---
@@ -41,6 +54,7 @@ graph TD
 ## 📋 Prerequisites
 
 *   Python 3.9 or higher
+*   Node.js (v18+ recommended)
 *   A Google Gemini API key (Obtain one for free at [Google AI Studio](https://aistudio.google.com/))
 
 ---
@@ -53,12 +67,20 @@ graph TD
     cd rag-pdf-chat
     ```
 
-2.  **Set Up a Virtual Environment**
+2.  **Configure Environment Variables**
+    Create a `.env` file in the root of the project:
+    ```env
+    GOOGLE_API_KEY=your_actual_gemini_api_key_here
+    ```
+
+### 🐍 Backend Setup
+1.  Navigate to the backend directory:
+    ```bash
+    cd backend
+    ```
+2.  Set up a Virtual Environment:
     ```bash
     python -m venv venv
-    
-    # On Windows (Command Prompt)
-    venv\Scripts\activate
     
     # On Windows (PowerShell)
     .\venv\Scripts\Activate.ps1
@@ -66,56 +88,58 @@ graph TD
     # On macOS/Linux
     source venv/bin/activate
     ```
-
-3.  **Install Dependencies**
+3.  Install dependencies:
     ```bash
     pip install -r requirements.txt
     ```
+4.  Start the FastAPI server:
+    ```bash
+    uvicorn app:app --reload --port 8000
+    ```
 
-4.  **Configure Environment Variables**
-    Create a `.env` file in the root of the project:
-    ```env
-    GOOGLE_API_KEY=your_actual_gemini_api_key_here
+### ⚛️ Frontend Setup
+1.  Navigate to the frontend directory:
+    ```bash
+    cd ../frontend
+    ```
+2.  Install packages:
+    ```bash
+    npm install
+    ```
+3.  Run the development server:
+    ```bash
+    npm run dev
     ```
 
 ---
 
 ## 🏃 Usage
 
-Two sample PDF documents are already included in the root directory for quick out-of-the-box testing:
-*   `sample.pdf`: A small 50-page test PDF document (~117 chunks).
-*   `sample2.pdf`: A larger PDF document (~222 chunks).
+### Web Interface
+1. Once both servers are running, navigate to `http://localhost:5173/` in your browser.
+2. Register an account and sign in.
+3. Drag and drop a PDF file (e.g., the included `sample.pdf`) into the upload dropzone.
+4. Once processed, you can begin chatting. Your session will be saved in the "Recent Chats" list on the sidebar.
 
-1.  Open [main.py](file:///d:/Prashaant/WebDevProjects/rag-pdf-chat/main.py) and update the `PDF_FILE_PATH` config variable at the top to either sample (or place your own PDF in the root directory and name it here):
-    ```python
-    PDF_FILE_PATH = "sample.pdf"  # or "sample2.pdf", or your own file
-    ```
-2.  Run the application:
-    ```bash
-    python main.py
-    ```
+### Command-Line Interface (CLI)
+For a terminal-based interface, configure `PDF_FILE_PATH` in `main.py` and run:
+```bash
+python main.py
+```
 
 ---
 
-## ⚠️ Limitations
-
-While this project is optimized for performance, users should keep the following limitations in mind:
+## ⚠️ Limitations & Troubleshooting
 
 ### 1. Free-Tier Rate Limits (RESOURCE_EXHAUSTED)
-Google's Gemini API free tier enforces two strict rate limits for embeddings (`gemini-embedding-001`):
-*   **100 requests per minute (RPM)**: Since each text chunk counts as 1 request, documents yielding more than 100 chunks will trigger a rate limit warning. The code automatically sleeps for 70 seconds to allow the sliding window to clear and retries, but it makes first-time indexing of large PDFs slow.
-*   **1,000 requests per day (RPD)**: If you index multiple large files or wipe your cache folder repeatedly, you will exhaust your daily quota. Once hit, the API will reject all requests until the quota resets at midnight Pacific Time. 
-    *   *Workaround:* Switch to a paid tier (pay-as-you-go is extremely cheap) or create a new project in Google AI Studio to get a fresh API key.
+Google's Gemini API free tier enforces strict rate limits for embeddings (`gemini-embedding-001`):
+*   **100 requests per minute (RPM)**: The backend automatically sleeps for 70 seconds to allow the sliding window to clear and retries, but it makes first-time indexing of large PDFs slow.
+*   **1,000 requests per day (RPD)**: If you exhaust your daily quota, the API will reject all requests. 
+    *   *Workaround:* Switch to a paid tier (extremely low cost) or set a fresh key in `.env`.
 
-### 2. Context Window & Retrieval Limits
-The chatbot retrieves the **top 8 closest text chunks** (`k=8`) as context for the LLM. 
-*   If your query requires connecting information spread across more than 8 distinct regions of a very large document, some parts of the context might not be sent to the LLM.
+### 2. Database Locking
+If you run concurrent development threads or hit connection errors, SQLite databases can occasionally throw a `"database is locked"` operational error. 
+*   *Solution:* We have implemented a 15-second connection timeout and wrapped all SQL connections inside strict `try...finally` blocks in `backend/database.py` to guarantee connections are closed and locks are released automatically.
 
 ### 3. Text-Only Extraction
-*   The script uses a standard PDF text parser (`PyPDFLoader`). 
-*   It does **not** support OCR (Optical Character Recognition) for scanned document images, nor can it index diagrams, charts, or images embedded in the PDF.
-
-### 4. Cache De-synchronization
-*   The cache checks if the folder `faiss_cache/<pdf_name>` exists. 
-*   If you modify the content of a PDF but keep the **same filename**, the script will load the old cached vectors instead of updating.
-    *   *Fix:* Manually delete the corresponding folder in `faiss_cache/` to force a rebuild.
+*   The script uses a standard PDF text parser (`PyPDFLoader`). It does **not** support OCR for scanned document images, nor can it index diagrams or images embedded inside PDFs.

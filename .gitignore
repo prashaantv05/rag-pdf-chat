@@ -10,6 +10,14 @@ env/
 faiss_cache/
 faiss_index/
 
+# SQLite databases
+*.db
+backend/users.db
+
+# User uploaded files
+uploads/
+backend/uploads/
+
 # Python compilation files
 __pycache__/
 *.pyc
